@@ -1,0 +1,12 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import vm from 'node:vm';
+const source=readFileSync(new URL('../src/App.jsx',import.meta.url),'utf8');
+const engine=source.slice(source.indexOf('const SRC'),source.indexOf('/* ============ CLAUDE API'));
+const ctx=vm.createContext({});vm.runInContext(engine+';globalThis.engine={analyze,searchKB,N};',ctx);
+const blank=()=>({ra:{},rv:{}});
+test('missing values never produce normal assessment',()=>{const r=ctx.engine.analyze(blank());assert.notEqual(r.overall,'ok');assert.ok(r.F.some(f=>f.title.includes('Insufficient')))});
+test('ERI and major impedance abnormalities trigger alerts',()=>{const r=ctx.engine.analyze({...blank(),eri:true,rv:{imp:'3000'}});assert.equal(r.overall,'alert')});
+test('retrieval returns impedance passages',()=>{assert.ok(ctx.engine.searchKB('impedance').some(h=>h.c.id==='K06'))});
+test('invalid numbers are not partially parsed',()=>{assert.equal(ctx.engine.N('5abc'),null);assert.equal(ctx.engine.N('-1'),null)});

@@ -1,0 +1,2 @@
+@import "tailwindcss";
+button {cursor:pointer} input:focus,select:focus,textarea:focus{outline:2px solid #4f46e5;outline-offset:2px} @media print{body{background:white} a{color:inherit} .noprint{display:none!important}}
